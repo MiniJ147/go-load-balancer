@@ -1,26 +1,26 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 )
 
+const INFO_MESSAGE string = "INFO]: FOR NOW WE ARE GOING TO ASSUME 2 SERVERS ARE ALWAYS ONLINE NO MORE NO LESS"
+
 func main() {
-	fmt.Println("Hello From GO!")
+	log.Println(INFO_MESSAGE)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Recieved connection")
+	balancer := MakeBalancer()
 
-		forwardRequest(w, r)
-	})
+	balancer.addServerURL("http://localhost:3000")
+	balancer.addServerURL("http://localhost:3001")
+
+	http.HandleFunc("/", balancer.handleRequest)
 
 	http.ListenAndServe(":8000", nil)
 }
 
-func forwardRequest(w http.ResponseWriter, r *http.Request) {
+/*func forwardRequest(w http.ResponseWriter, r *http.Request) {
 	url, err := url.Parse("http://localhost:3000") //creating serve url
 	if err != nil {
 		log.Fatal(err)
@@ -29,4 +29,4 @@ func forwardRequest(w http.ResponseWriter, r *http.Request) {
 	//making our proxy
 	reverseProxy := httputil.NewSingleHostReverseProxy(url)
 	reverseProxy.ServeHTTP(w, r)
-}
+}*/
